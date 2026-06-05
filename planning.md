@@ -18,24 +18,33 @@ I chose the used car market as my domain, specifically focusing on building an A
 <!-- List your specific sources: URLs, subreddit names, forum threads, or file descriptions.
      Aim for at least 10 sources that together cover different subtopics or perspectives within your domain. -->
 
-<!-- List your specific sources: URLs, subreddit names, forum threads, or file descriptions.
-     Aim for at least 10 sources that together cover different subtopics or perspectives within your domain. -->
+The **Source status** column records what each URL actually returned when `collect.py`
+was run (HTTP status / outcome of the first scrape pass). This drives which sources are
+usable as-is versus which need a workaround (see Anticipated Challenges #4).
 
-| # | Source | Description | URL or location |
-|---|--------|-------------|-----------------|
-| 1 | KBB Fair Purchase Price methodology | Explains how KBB calculates its value estimates — useful for documenting exactly what the guide improves upon | https://www.kbb.com/car-advice/kbb-fair-purchase-price/ |
-| 2 | Edmunds True Market Value explanation | Competing valuation methodology using real transaction prices; good contrast to KBB | https://www.edmunds.com/tmv.html |
-| 3 | r/whatcarshouldibuy subreddit | Buyer threads with real offer prices and crowd-sourced "fair/too high/steal" verdicts; rich with regional variation | https://www.reddit.com/r/whatcarshouldibuy/ |
-| 4 | CarEdge market days supply & buying guides | Days-on-lot data and negotiation leverage by make/model; covers supply-side pricing KBB ignores | https://caredge.com/guides/car-buying |
-| 5 | Consumer Reports reliability summaries | Model-year reliability scores broken down by system (engine, transmission, brakes, etc.) | https://www.consumerreports.org/cars/reliability/ |
-| 6 | r/MechanicAdvice — model-specific threads | Real owner-reported failure modes and repair costs; best source for year-specific "gotchas" | https://www.reddit.com/r/MechanicAdvice/ |
-| 7 | CarComplaints.com model pages | Aggregated owner complaints with severity ratings, mileage at failure, and avg repair cost per model year | https://www.carcomplaints.com/ |
-| 8 | Model-specific owner forums (CivicX, ToyotaNation) | Long-running threads on known defects, TSBs, and pre-purchase inspection tips from marque owners | https://www.civicx.com/forum/ · https://www.toyotanation.com/forums/ |
-| 9 | NHTSA recall database | Official recall records by model/year — standardized short entries; flags open recalls KBB never surfaces | https://www.nhtsa.gov/vehicle/2018/HONDA/CR-V/SUV/AWD#recalls |
-| 10 | NHTSA Technical Service Bulletins (TSBs) | Non-mandatory manufacturer fixes ("soft recalls") dealers are required to perform; highly structured short docs | https://www.nhtsa.gov/vehicle-manufacturers/technical-service-bulletins |
-| 11 | IIHS safety ratings | Crash test grades (Good/Acceptable/Marginal/Poor) by test category and model year; consistent structure | https://www.iihs.org/ratings |
-| 12 | r/personalfinance used car buying wiki | Community-maintained checklist: pre-purchase inspection, financing, negotiation, title transfer | https://www.reddit.com/r/personalfinance/wiki/vehicles |
-| 13 | Lemon Squad pre-purchase inspection blog | Explains what a third-party PPI catches vs. what a CarFax report misses; short single-topic posts | https://lemonsquad.com/blog/ |
+| # | Source | Description | URL or location | Source status |
+|---|--------|-------------|-----------------|---------------|
+| 1 | KBB Fair Purchase Price methodology | Explains how KBB calculates its value estimates — useful for documenting exactly what the guide improves upon | https://www.kbb.com/faq/used-cars/ | **URL corrected** (was 404). Re-scrape pending; KBB may still bot-block at the new address. Alt: b2b.kbb.com/.../definitions-of-our-values/ |
+| 2 | CarMax used-car inventory | Live used-car listings (price, mileage, year, trim) from the largest US used-car retailer; real transaction-adjacent pricing | https://www.carmax.com/cars | **REPLACED edmunds_tmv** (403). Inventory is JS/API-rendered — re-scrape pending; plain requests likely returns an empty shell |
+| 3 | r/whatcarshouldibuy subreddit | Buyer threads with real offer prices and crowd-sourced "fair/too high/steal" verdicts; rich with regional variation | https://www.reddit.com/r/whatcarshouldibuy/ | **403** — Reddit blocks unauthenticated `.json`; needs API/old.reddit |
+| 4 | CarEdge market days supply & buying guides | Days-on-lot data and negotiation leverage by make/model; covers supply-side pricing KBB ignores | https://caredge.com/guides/fastest-selling-cars | **URL corrected** (was 404). New slug explicitly explains Market Day Supply; re-scrape pending |
+| 5 | Consumer Reports reliability summaries | Model-year reliability scores broken down by system (engine, transmission, brakes, etc.) | https://www.consumerreports.org/cars/car-reliability-owner-satisfaction/who-makes-the-most-reliable-cars-a7824554938/ | **URL corrected** (was 404). Page explains scoring methodology; CR is partly paywalled so expect possibly intro-only; re-scrape pending |
+| 6 | r/MechanicAdvice — model-specific threads | Real owner-reported failure modes and repair costs; best source for year-specific "gotchas" | https://www.reddit.com/r/MechanicAdvice/ | **403** — same Reddit block as #3 |
+| 7 | CarComplaints.com model pages | Aggregated owner complaints with severity ratings, mileage at failure, and avg repair cost per model year | https://www.carcomplaints.com/ | **200 — usable** (~29 KB); verify content isn't a landing shell |
+| 8 | Model-specific owner forums (CivicX, ToyotaNation) | Long-running threads on known defects, TSBs, and pre-purchase inspection tips from marque owners | https://www.civicx.com/forum/ · https://www.toyotanation.com/forums/ | **200 — usable** (~234 KB) |
+| 9 | NHTSA recall database | Official recall records by model/year — standardized short entries; flags open recalls KBB never surfaces | https://api.nhtsa.gov/recalls/recallsByVehicle?make=honda&model=cr-v&modelYear=2018 | **200 — usable** (~6.6 KB clean JSON); highest-value source |
+| 10 | Carvana used-car inventory | Live online used-car listings with fixed pricing; contrast to dealer/negotiated pricing | https://www.carvana.com/cars | **REPLACED nhtsa_tsb** (403). Same JS/API caveat as CarMax; re-scrape pending |
+| 11 | IIHS safety ratings | Crash test grades (Good/Acceptable/Marginal/Poor) by test category and model year; consistent structure | https://www.iihs.org/ratings | **200 — usable** (~24 KB); verify it isn't JS-rendered shell |
+| 12 | AutoTempest aggregated listings | Meta-search across multiple listing sites; broad price/availability comparison for a given make/model | https://www.autotempest.com/results?make=honda&model=cr-v | **REPLACED r_pf_vehicles** (403). Aggregator — most JS-dependent of the three, lowest scrape odds; re-scrape pending |
+| 13 | Lemon Squad pre-purchase inspection blog | Explains what a third-party PPI catches vs. what a CarFax report misses; short single-topic posts | https://lemonsquad.com/blog/ | **500** — server error (~3.3 KB); retry before treating as dead |
+
+**Collection summary (first pass + URL fixes):** First scrape returned 4 of 13 usable (200):
+CarComplaints, CivicX, NHTSA recalls JSON, IIHS. The 3 sources that returned 404 (KBB,
+CarEdge, Consumer Reports) have since had their URLs corrected to current working pages
+(see rows above) and are pending a re-scrape to confirm they actually return content rather
+than a bot-block or paywall at the new address. Still outstanding: 5 × 403 (Edmunds, three
+Reddit endpoints, NHTSA TSBs) and 1 × 500 (Lemon Squad). Workaround plan in Anticipated
+Challenges #4.
 
 ---
 
@@ -45,6 +54,14 @@ I chose the used car market as my domain, specifically focusing on building an A
      State your chunk size (in tokens or characters), overlap size, and explain why those
      numbers fit the structure of your documents.
      A review-heavy corpus warrants different chunking than a long FAQ. -->
+
+**Length unit:** Chunk sizes below are measured in **tokens**, not characters. This is a
+deliberate choice (resolving the earlier mismatch between this section and the Milestone 3
+prompt, which was written in characters): the embedding model consumes tokens and truncates
+input past its token limit, so chunking in tokens makes "this chunk fits the embedder" a
+verifiable fact rather than a character-count estimate. Token counts use the `cl100k_base`
+tokenizer via `tiktoken` for budgeting; note that all-MiniLM-L6-v2 uses its own tokenizer,
+so these counts are a close approximation, not an exact match — adequate for sizing chunks.
 
 **Chunk size:** 400–500 tokens for prose sources (KBB/Edmunds explainers, CarEdge guides,
 r/personalfinance wiki, Lemon Squad blog posts). 150–200 tokens for structured record sources
@@ -93,7 +110,8 @@ different strategies:
 **Embedding model:** all-MiniLM-L6-v2 via sentence-transformers. Fast, free to run locally,
 and well-suited for the short-to-medium chunk sizes (150–500 tokens) in this corpus. Its
 384-dimension output keeps the vector index small, which matters when storing hundreds of
-recall records and forum threads.
+recall records and forum threads. Note its ~256-token input limit — chunk sizes above are
+sized in tokens partly to stay within it so no chunk is silently truncated at embedding time.
 
 **Top-k:** 5 for most queries. Bumped to 8 for broad queries like "what should I inspect
 before buying a used Honda CR-V" — those legitimately need chunks from multiple source
@@ -124,6 +142,12 @@ training signal.
 | 3 | A dealer is asking $21,500 for a 2020 Toyota RAV4 XLE with 38,000 miles. Is that above or below Edmunds TMV, and what does current market days supply suggest about negotiating room? | Edmunds TMV for a 2020 RAV4 XLE in that mileage range is approximately $22,000–$23,500 (as of corpus collection date), making $21,500 below TMV — a fair-to-good deal. Days supply for RAV4 has historically been low (under 30 days), meaning limited negotiating leverage; the system should flag both the price assessment and the supply context rather than just one. |
 | 4 | What does a pre-purchase inspection (PPI) catch that a Carfax report misses? | A PPI catches mechanical and structural issues not reflected in title history: worn brake pads/rotors, frame damage from minor unreported accidents, oil leaks, suspension wear, deferred maintenance, and compression issues. Carfax only shows title events (accidents reported to insurance, odometer fraud, total-loss branding). The system should give at least 3 specific examples from the Lemon Squad or r/personalfinance wiki sources — not a generic answer. |
 | 5 | What IIHS safety rating did the 2019 Subaru Forester receive, and which specific test category, if any, was not rated "Good"? | The 2019 Forester received IIHS Top Safety Pick+ with "Good" ratings across most categories. The system should correctly identify the headlight rating for specific trim levels as the one variable result (base trims historically rated "Acceptable" or lower) — this tests whether retrieval pulls the detailed per-trim data rather than just the headline TSP+ label. |
+
+> **Note on eval feasibility after collection:** Q3 depends on Edmunds (403) and Q4 partly on
+> Lemon Squad (500) / r/personalfinance (403) — all currently unavailable. Until those
+> sources are recovered (see Challenge #4), these questions can't be answered from the
+> corpus. Q1 (NHTSA, 200) and Q5 (IIHS, 200) are fully answerable now; Q2 partly (CarComplaints
+> 200, but Ford-specific forum data depends on sources not yet collected).
 
 ---
 
@@ -159,7 +183,8 @@ training signal.
    `collected_date` metadata field so the LLM can caveat its answer ("as of [date],
    this recall was open — verify at nhtsa.gov before purchase"), and building a
    re-ingestion schedule into the pipeline so these sources are re-scraped at least
-   monthly rather than treated as static documents.
+   monthly rather than treated as static documents. *(Implemented: `collect.py` stamps
+   `collected_date` on every manifest entry and `load.py` carries it onto every chunk.)*
 
 3. **Bonus risk — price data that looks precise but reflects a different market.**
    Edmunds TMV and KBB values are computed from regional transaction data, but the
@@ -174,6 +199,61 @@ training signal.
    disclaimer template to any chunk tagged `source: pricing` reminding the user to
    cross-check against local listings on Marketplace or AutoTempest before negotiating.
 
+4. **Source availability — most planned sources resist scraping (discovered during collection).**
+   The first `collect.py` run revealed that only 4 of 13 sources return usable content with a
+   plain `requests` call. The failures cluster into three predictable kinds:
+   - **Bot blocks (403):** Edmunds and all three Reddit endpoints rejected the request.
+     Reddit is the clearest case — all three `.json` URLs returned an identical 189,908-byte
+     block page, confirming it's a uniform anti-scraping response, not real content. Reddit
+     now requires authenticated API access (OAuth) or the `old.reddit.com` host for
+     unauthenticated reads, and even those are unreliable. NHTSA's TSB page also 403'd with a
+     432-byte stub.
+   - **Moved pages (404):** KBB, CarEdge, and Consumer Reports URLs no longer resolve as
+     written in the table. The KBB 404 returned a full ~169 KB styled error page, which is
+     why a naive byte-count check would have wrongly treated it as "collected." These need
+     their current URLs located.
+   - **Server error (500):** Lemon Squad — possibly transient; worth a retry before abandoning.
+
+   **Why this matters for the project:** the working four (CarComplaints, CivicX, NHTSA
+   recalls, IIHS) skew toward *records and forums* and away from *pricing/valuation prose*.
+   That directly undercuts the original KBB-replacement premise (valuation) while leaving the
+   reliability/recall/safety angle well-supported. Several eval questions (Q3 pricing, Q4 PPI)
+   can't be answered until their sources are recovered.
+
+   **Mitigation plan, in priority order:**
+   (a) Fix the three 404s first — these are likely just moved pages and the cheapest wins;
+       locate current URLs and update the table.
+   (b) Recover Reddit via the official API or `old.reddit.com`, since forum data underpins
+       the model-year "gotchas" that differentiate this guide; if that proves too costly,
+       substitute the marque forums (CivicX already works, add ToyotaNation) which cover the
+       same Q&A signal without the auth wall.
+   (c) For Edmunds/CR pricing prose, fall back to a headless browser (Playwright) or accept
+       the gap and narrow the project's stated scope toward reliability/recalls rather than
+       valuation — and say so explicitly rather than claiming valuation coverage the corpus
+       can't back.
+   (d) Retry Lemon Squad once; if it stays down, lean on the r/personalfinance wiki (also
+       Reddit-blocked, so contingent on (b)) for PPI content.
+
+   **Process note:** a 200 status alone does not guarantee usable content — a page can return
+   200 with a captcha or a JS shell. The next step is to run `load.py` over the four working
+   sources and treat any `[warn] empty after cleaning` as a hidden failure on top of the
+   status-code failures above.
+
+   **Final corpus outcome (after cleaning + replacement attempts):** The pipeline ended with
+   **39 usable chunks**. The CarMax / Carvana / AutoTempest inventory replacements all failed
+   (403 hard-blocks and a JS-shell 200) — confirming that major used-car retailers actively
+   block scraping, a real finding about the domain rather than a pipeline bug. The substantive
+   corpus is concentrated in four strong sources: NHTSA recalls (11 chunks), Consumer Reports
+   reliability (9), CivicX owner forum (7), and CarEdge market-day-supply (4). KBB, IIHS,
+   CarComplaints, and Edmunds each survived as a single thin chunk. Net effect on scope: the
+   guide is well-supported on **recalls, reliability, and safety**, but **thin on live
+   valuation/pricing** because every pricing-data source (Edmunds, KBB depth, the three
+   retailers) was either blocked or paywalled. The honest framing for this project is a
+   "reliability & ownership-risk research assistant" rather than a live-pricing KBB
+   replacement. End-to-end retrieval and grounded generation were verified working: the
+   2018 CR-V recall query returned specific, correctly-cited NHTSA recalls, and out-of-corpus
+   queries (e.g. "best German V8") were correctly declined rather than hallucinated.
+
 ---
 
 ## Architecture
@@ -185,11 +265,11 @@ training signal.
      You'll use this diagram as context when prompting AI tools to implement each stage. -->
      ```mermaid
      flowchart TD
-          A["Document ingestion\n──────────────\nrequests · BeautifulSoup · pdfplumber\n(HTML, PDFs, JSON from 13 sources)"]
-          B["Chunking\n──────────────\nLangChain RecursiveCharacterTextSplitter\n400–500 tok prose · 150–200 tok records\n50 tok overlap (prose) · 0 (records)"]
+          A["Document ingestion\n──────────────\nrequests · BeautifulSoup · pdfplumber\n(HTML, PDFs, JSON from 13 sources)\ncollect.py saves raw bytes + manifest.jsonl"]
+          B["Chunking\n──────────────\nLangChain RecursiveCharacterTextSplitter\n400–500 tok prose · 150–200 tok records\n50 tok overlap (prose) · 0 (records)\nload.py cleans by type + attaches metadata"]
           C["Embedding + vector store\n──────────────\nall-MiniLM-L6-v2 (sentence-transformers)\nChromaDB persisted · 384-dim vectors\n+ metadata: source, model_year, collected_date"]
           D["Retrieval\n──────────────\nChromaDB cosine similarity\ntop-k 5 (default) · 8 (broad) · 3 (precise)"]
-          E["Generation\n──────────────\nClaude claude-sonnet-4-20250514\nchunks + query → grounded answer\nwith source citations"]
+          E["Generation\n──────────────\nGroq llama-3.3-70b-versatile (OpenAI-compatible)\nchunks + query → grounded answer\nwith source citations + stale-data flagging"]
 
           A --> B --> C --> D --> E
      ```
@@ -225,6 +305,13 @@ exact prompt:
   chunk_size=1800, chunk_overlap=200. For 'record': chunk_size=700,
   chunk_overlap=0. For 'forum': chunk_size=1800, chunk_overlap=0, split only
   at double newlines. Return no chunk shorter than 100 characters."
+
+> **Implementation note (updated):** the delivered code chunks in **tokens**, not
+> characters, and splits records/forums **structurally** (one record/thread per chunk)
+> before length-capping — a plain character splitter can't honor "one record per chunk."
+> Collection was also split into a separate `collect.py` (raw bytes + manifest) ahead of
+> `load.py` (clean + chunk), so cleaning can be re-run without re-scraping. See Chunking
+> Strategy for the token rationale.
 
 Expected output: A working ingest.py with both functions, imports, and a
 __main__ block that loops over a hardcoded list of 3 test URLs (one of each
@@ -281,10 +368,21 @@ the stale-data and model-year-bleed failure modes, and (4) this exact prompt:
   a system instruction telling the model it is a used car research assistant
   that must cite sources and flag any chunk whose metadata collected_date is
   more than 90 days old, (b) the retrieved chunks each labeled with their
-  source_type, and (c) the user's query. Call the Anthropic API with
-  claude-sonnet-4-20250514 and return the model's response string. Then
+  source_type, and (c) the user's query. Call the Groq API (OpenAI-compatible)
+  with llama-3.3-70b-versatile and return the model's response string. Then
   implement a minimal CLI loop: print a prompt, read a query, print the
   answer, repeat until the user types 'quit'."
+
+> **Implementation note (updated):** the generation LLM is Groq's
+> `llama-3.3-70b-versatile` (free tier, OpenAI-compatible API), not Anthropic's
+> Claude as originally planned — a deliberate substitution for cost. The `groq`
+> Python package is used with the key in `.env` as `GROQ_API_KEY`. The prompt
+> template labels each chunk with source, source_type, and model_year, and
+> marks chunks older than 90 days `[STALE]`; the system instruction enforces
+> answering only from context, citing sources, not generalizing across model
+> years, and caveating stale recall data. ("Tool: Claude" above refers to
+> Claude as the coding assistant used to write the pipeline, separate from the
+> runtime LLM.)
 
 Expected output: A working generate.py with answer(), a CLI loop, and
 inline comments explaining how the prompt template addresses the two risks
