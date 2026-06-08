@@ -6,7 +6,7 @@ responses. Ask a plain-language question ("Does the 2018 Honda CR-V have any rec
 and get an answer drawn only from collected documents, with sources attributed.
 
 
-(Before you run generate, run retrieval first to build the chromadb index)
+(Before you run generate, run retrieval first to build the chromadb index. run => .venv312\Scripts\activate)
 
 ---
 
