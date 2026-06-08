@@ -189,7 +189,7 @@ and it does so at the per-claim level (separating, e.g., a recall's description 
 when they come from different chunks). Grounding was validated end-to-end: an out-of-corpus
 query ("best German V8") was refused rather than answered from training knowledge.
 
----
+--- 
 
 ## Evaluation Report
 
